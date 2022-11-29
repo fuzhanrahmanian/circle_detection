@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 #pylint: disable=no-member
-img = cv2.imread('Anode/[No2]_Anode_2022_11_07_11h_14m_00s.jpg', 0)
+img = cv2.imread('trial_anode/[No55]_Anode_2022_11_18_13h_42m_38s.jpg', 0)
 #img = cv2.threshold(img, 62, 255, cv2.THRESH_BINARY)[1]  # ensure binary
 # invert the binary image
 #img = cv2.bitwise_not(img)
@@ -33,7 +33,7 @@ def edge_detection(image):
     # Converting the image to grayscale.
     gray = image#cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Extract the foreground
-    edges_foreground = cv2.bilateralFilter(gray, 9, 75, 75)
+    edges_foreground = cv2.bilateralFilter(gray, 9, 175, 75)
     foreground = fgbg.apply(edges_foreground)
     
     # Smooth out to get the moving area
