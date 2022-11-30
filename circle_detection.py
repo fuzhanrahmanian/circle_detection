@@ -23,12 +23,14 @@ def open_image(file_name):
         print ('Usage: hough_circle.py [image_name -- default ' + file_name + '] \n')
         sys.exit()
     IMG_GRAY = cv.cvtColor(IMG_COLOR, cv.COLOR_BGR2GRAY)
-    #IMG_GRAY = cv.GaussianBlur(IMG_GRAY, (1,1), 1)
-    IMG_GRAY = cv.medianBlur(IMG_GRAY, 3)
+    #IMG_GRAY = cv.GaussianBlur(IMG_GRAY, (11,11), 0)
+    IMG_GRAY = cv.medianBlur(IMG_GRAY, 5)
     #IMG_GRAY = cv.adaptiveThreshold(IMG_GRAY,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,3.5)
     #kernel = np.ones((2,2),np.uint8)
-    IMG_GRAY = cv.erode(IMG_GRAY, (3,3), iterations=1)
-    IMG_GRAY = cv.dilate(IMG_GRAY, (3,3), iterations=1)
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, (19,19))
+    kernelfine = cv.getStructuringElement(cv.MORPH_RECT, (15,15))
+    IMG_GRAY = cv.erode(IMG_GRAY, kernelfine, iterations=1)
+    IMG_GRAY = cv.dilate(IMG_GRAY, kernel, iterations=1)
     #IMG_GRAY = cv.blur(IMG_GRAY, (3, 3))
     return IMG_GRAY
 
