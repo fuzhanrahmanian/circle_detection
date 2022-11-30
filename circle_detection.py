@@ -4,94 +4,53 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
-#pylint: disable=no-member
-
-CENTER = (304, 236)
 IMG_COLOR = None
-IMG_GRAY = None
 DETECTED_CASE = []
 DETECTED_ELECTRODE = []
+OBJECT_LIST = ('Anode', 'Anode_Grab', 'Cathode', 'Cathode_Grab', 'Anode_Spacer', 'Cathode_Spacer', 'Cathode_Case')
 
-def open_image(file_name):
-    # Load an color image in grayscale
+CONFIG = dict(
+Anode=dict(name='Anode', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15),
+erode_iter=1, minDist=100, param1=120, param2=25, minR=85, maxR=96),
+
+Anode_Grab=dict(name='Anode_Grab', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15),
+erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+
+Cathode=dict(name='Cathode', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=22, minR=86, maxR=92),
+
+Cathode_Grab=dict(name='Cathode_Grab', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+
+Anode_Spacer=dict(name='Anode_Spacer', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+
+Cathode_Spacer=dict(name='Cathode_Spacer', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+
+Cathode_Case=dict(name='Cathode_Case', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+
+Reference=dict(name='Reference', text_pos = (10, 440), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=20, minR=10, maxR=20)
+)
+
+def detect_object_center(object_config:dict):
     global IMG_COLOR
-    IMG_COLOR = cv.imread(cv.samples.findFile(file_name), cv.IMREAD_COLOR)
 
-    # Check if image is loaded fine
-    if IMG_COLOR is None:
-        print ('Error opening image!')
-        print ('Usage: hough_circle.py [image_name -- default ' + file_name + '] \n')
-        sys.exit()
-    IMG_GRAY = cv.cvtColor(IMG_COLOR, cv.COLOR_BGR2GRAY)
+    img_gray = cv.cvtColor(IMG_COLOR, cv.COLOR_BGR2GRAY)
     #IMG_GRAY = cv.GaussianBlur(IMG_GRAY, (11,11), 0)
-    IMG_GRAY = cv.medianBlur(IMG_GRAY, 5)
+    img_gray = cv.medianBlur(img_gray, 5)
     #IMG_GRAY = cv.adaptiveThreshold(IMG_GRAY,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,3.5)
     #kernel = np.ones((2,2),np.uint8)
-    kernel = cv.getStructuringElement(cv.MORPH_RECT, (19,19))
-    kernelfine = cv.getStructuringElement(cv.MORPH_RECT, (15,15))
-    IMG_GRAY = cv.erode(IMG_GRAY, kernelfine, iterations=1)
-    IMG_GRAY = cv.dilate(IMG_GRAY, kernel, iterations=1)
-    #IMG_GRAY = cv.blur(IMG_GRAY, (3, 3))
-    return IMG_GRAY
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, object_config['dilate_ksize']) # (19,19)
+    kernelfine = cv.getStructuringElement(cv.MORPH_RECT, object_config['erode_ksize']) # (15,15)
+    img_gray = cv.erode(img_gray, kernelfine, iterations=object_config['erode_iter']) # 1
+    img_gray = cv.dilate(img_gray, kernel, iterations=object_config['dilate_iter']) # 1
 
-def mark_center_of_holder(img):
-    global IMG_COLOR
-    
-    # #circle center
-    # cv.circle(IMG_COLOR, CENTER, 1, (0, 100, 100), 3)
-    # #circle outline
-    # radius = 115
-    # cv.circle(IMG_COLOR, CENTER, radius, (255, 0, 255), 3)
-    holder = cv.HoughCircles(img, cv.HOUGH_GRADIENT, 1, 100,
-                               param1=120, param2=20,
-                               minRadius=115, maxRadius=125)
-
-    if holder is not None:
-        holder = np.uint16(np.around(holder))
-        for i in holder[0, :]:
-            center = (i[0], i[1])
-            # circle center
-            cv.circle(IMG_COLOR, center, 1, (0, 100, 100), 1)
-            # circle outline
-            radius = i[2]
-            DETECTED_CASE.append(radius)
-            cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Coordinates of holder: {center[0]} , {center[1]} Radius: {i[2]}", (10, 400),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            #print(f"Casing: Center_({center[0]} , {center[1]}), Radius_{i[2]}")
-
-def mark_reference_center(img):
-    global IMG_COLOR
-    
-    # #circle center
-    # cv.circle(IMG_COLOR, CENTER, 1, (0, 100, 100), 3)
-    # #circle outline
-    # radius = 115
-    # cv.circle(IMG_COLOR, CENTER, radius, (255, 0, 255), 3)
-    holder = cv.HoughCircles(img, cv.HOUGH_GRADIENT, 1, 100,
-                               param1=120, param2=20,
-                               minRadius=10, maxRadius=20)
-
-    if holder is not None:
-        holder = np.uint16(np.around(holder))
-        for i in holder[0, :]:
-            center = (i[0], i[1])
-            # circle center
-            cv.circle(IMG_COLOR, center, 1, (0, 100, 100), 1)
-            # circle outline
-            radius = i[2]
-            DETECTED_CASE.append(radius)
-            cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Coordinates of Reference: {center[0]} , {center[1]} Radius: {i[2]}", (10, 400),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            #print(f"Casing: Center_({center[0]} , {center[1]}), Radius_{i[2]}")
-
-def detect_anode_circle(img):
-    global IMG_COLOR
-    #Detect the inner circle
-    circles = cv.HoughCircles(img, cv.HOUGH_GRADIENT, 1, 100,
-                               param1=120, param2=25,
-                               minRadius=85, maxRadius=96)
+    circles = cv.HoughCircles(img_gray, cv.HOUGH_GRADIENT, 1, object_config['minDist'],
+                               param1=object_config['param1'], param2=object_config['param2'],
+                               minRadius=object_config['minR'], maxRadius=object_config['maxR'])
 
     # Mark the center of the inner circle
     if circles is not None:
@@ -104,52 +63,33 @@ def detect_anode_circle(img):
             radius = i[2]
             DETECTED_ELECTRODE.append(radius)
             cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Coordinates of anode: {center[0]} , {center[1]}. Radius: {i[2]}", (10, 440),
+            cv.putText(IMG_COLOR, f"Coordinates of {object_config['name']}: {center[0]} , {center[1]}. Radius: {i[2]}", object_config['text_pos'],
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            #print(f"Anode: Center_({center[0]} , {center[1]}), Radius_{i[2]}")
-
-def detect_cathode_circle(img):
-    global IMG_COLOR
-    #Detect the inner circle
-    circles = cv.HoughCircles(img, cv.HOUGH_GRADIENT, 1, 100,
-                               param1=120, param2=22,
-                               minRadius=86, maxRadius=92)
-
-    # Mark the center of the inner circle
-    if circles is not None:
-        circles = np.uint16(np.around(circles))
-        for i in circles[0, :]:
-            center = (i[0], i[1])
-            # circle center
-            cv.circle(IMG_COLOR, center, 1, (0, 100, 100), 1)
-            # circle outline
-            radius = i[2]
-            DETECTED_ELECTRODE.append(radius)
-            cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Coordinates of cathode: {center[0]} , {center[1]}. Radius: {i[2]}", (10, 440),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            #print(f"Cathode: Center_({center[0]} , {center[1]}), Radius_{i[2]}")
-
+    
 def main():
-
-    default_file = 'trial_anode/anode/2022_11_17_14h_32m_53s.jpg'
-    #default_file = sys.argv[1] if len(sys.argv) > 1  else default_file
-    electrode = input("Folder to test(anode/cathode): ")
-    folder = os.path.join(r"trial_anode", electrode)
+    print("Choose from following list:\n[1]--> Anode\n[2]--> Anode_Grab\n[3]--> Cathode\n[4]--> Cathode_Grab\n[5]--> Anode_Spacer\n[6]--> Cathode_Spacer\n[7]--> Cathode_Case")
+    object_id = input("-------------------------\nObject to test: ")
+    try:
+        object_id = int(object_id)
+    except ValueError:
+        exit()
+    else:
+        object_id = OBJECT_LIST[int(object_id)-1]
+    folder = os.path.join(r"trial_anode", object_id)
     group = []
     for file in os.listdir(folder):
         group.append(re.findall(r'\d+', file)[0])
         # join the path and filename
         path = os.path.join(folder, file)
-        img_gray = open_image(path)
-        #mark_center_of_holder(img_gray)
-        mark_reference_center(img_gray)
-        
-        #img_circle_color = detect_inner_circle(img_color)
-        if electrode == 'anode':
-            detect_anode_circle(img_gray)
-        elif electrode == 'cathode':
-            detect_cathode_circle(img_gray)
+        global IMG_COLOR
+        IMG_COLOR = cv.imread(cv.samples.findFile(path), cv.IMREAD_COLOR)
+        # Check if image is loaded fine
+        if IMG_COLOR is None:
+            print ('Error opening image!')
+            sys.exit()
+        detect_object_center(CONFIG[object_id])
+        if object_id in ('Anode', 'Cathode'):
+            detect_object_center(CONFIG['Reference'])
 
         cv.imshow("detected circles", IMG_COLOR)
         cmd = cv.waitKey(0)
@@ -159,11 +99,11 @@ def main():
             continue
     cv.destroyAllWindows()
     plt.plot(group, DETECTED_CASE, label='Reference_radius', marker = 'o')
-    plt.plot(group, DETECTED_ELECTRODE, label=f'{electrode.capitalize()}_radius', marker = 'o')
+    plt.plot(group, DETECTED_ELECTRODE, label=f'{object_id}_radius', marker = 'o')
     plt.legend()
-    plt.xlabel(f"{electrode.capitalize()} Number")
-    plt.ylabel(f"{electrode.capitalize()} Radius")
-    plt.title(f"Detected Radius from {electrode}")
+    plt.xlabel(f"{object_id} Number")
+    plt.ylabel(f"{object_id} Radius")
+    plt.title(f"Detected Radius from {object_id}")
     plt.show()
     return 0
 
