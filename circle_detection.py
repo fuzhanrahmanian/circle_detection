@@ -10,29 +10,29 @@ DETECTED_ELECTRODE = []
 OBJECT_LIST = ('Anode', 'Anode_Grab', 'Cathode', 'Cathode_Grab', 'Anode_Spacer', 'Cathode_Spacer', 'Cathode_Case')
 
 CONFIG = dict(
-Anode=dict(name='Anode', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15),
-erode_iter=1, minDist=100, param1=120, param2=25, minR=85, maxR=96),
+Anode=dict(name='Anode', text_pos = (10, 460), dilate_ksize=(15,15), dilate_iter=1, erode_ksize=(11,11),
+erode_iter=1, minDist=100, param1=100, param2=7, minR=92, maxR=93),
 
 Anode_Grab=dict(name='Anode_Grab', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15),
-erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+erode_iter=1, minDist=100, param1=120, param2=22, minR=115, maxR=138),
 
-Cathode=dict(name='Cathode', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=22, minR=86, maxR=92),
+Cathode=dict(name='Cathode', text_pos = (10, 460), dilate_ksize=(9,9), dilate_iter=1, erode_ksize=(7,7), 
+erode_iter=1, minDist=100, param1=100, param2=9, minR=85, maxR=88),
 
 Cathode_Grab=dict(name='Cathode_Grab', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+erode_iter=1, minDist=100, param1=120, param2=15, minR=120, maxR=125),
 
 Anode_Spacer=dict(name='Anode_Spacer', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+erode_iter=1, minDist=100, param1=120, param2=15, minR=135, maxR=140),
 
 Cathode_Spacer=dict(name='Cathode_Spacer', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+erode_iter=1, minDist=100, param1=120, param2=15, minR=135, maxR=140),
 
 Cathode_Case=dict(name='Cathode_Case', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=25, minR=110, maxR=150),
+erode_iter=1, minDist=100, param1=120, param2=15, minR=160, maxR=170),
 
 Reference=dict(name='Reference', text_pos = (10, 440), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=20, minR=10, maxR=20)
+erode_iter=1, minDist=100, param1=120, param2=15, minR=13, maxR=16)
 )
 
 def detect_object_center(object_config:dict):
