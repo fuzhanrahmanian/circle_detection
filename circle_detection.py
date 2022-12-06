@@ -13,14 +13,14 @@ CONFIG = dict(
 Anode=dict(name='Anode', text_pos = (10, 460), dilate_ksize=(15,15), dilate_iter=1, erode_ksize=(11,11),
 erode_iter=1, minDist=100, param1=100, param2=7, minR=92, maxR=93),
 
-Anode_Grab=dict(name='Anode_Grab', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15),
-erode_iter=1, minDist=100, param1=120, param2=22, minR=115, maxR=138),
+Anode_Grab=dict(name='Anode_Grab', text_pos = (10, 460), dilate_ksize=(17,17), dilate_iter=1, erode_ksize=(15,15),
+erode_iter=1, minDist=100, param1=100, param2=25, minR=125, maxR=135),
 
 Cathode=dict(name='Cathode', text_pos = (10, 460), dilate_ksize=(9,9), dilate_iter=1, erode_ksize=(7,7), 
 erode_iter=1, minDist=100, param1=100, param2=9, minR=85, maxR=88),
 
-Cathode_Grab=dict(name='Cathode_Grab', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=120, maxR=125),
+Cathode_Grab=dict(name='Cathode_Grab', text_pos = (10, 460), dilate_ksize=(17,17), dilate_iter=1, erode_ksize=(17,17), 
+erode_iter=1, minDist=100, param1=120, param2=15, minR=115, maxR=125),
 
 Anode_Spacer=dict(name='Anode_Spacer', text_pos = (10, 460), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
 erode_iter=1, minDist=100, param1=120, param2=15, minR=135, maxR=140),
