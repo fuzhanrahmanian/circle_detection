@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 IMG_COLOR = None
 DETECTED_CASE = []
 DETECTED_ELECTRODE = []
-OBJECT_LIST = ('Anode', 'Anode_Grab', 'Cathode', 'Cathode_Grab', 'Anode_Spacer', 'Cathode_Spacer', 'Cathode_Case', 'Suction_Cup')
+OBJECT_LIST = ('Anode', 'Anode_Grab', 'Cathode', 'Cathode_Grab', 'Anode_Spacer', 'Cathode_Spacer', 'Cathode_Case', 'Suction_Cup', 'Reference')
 
 CONFIG = dict(
 Anode=dict(name='Anode', diam=15, text_pos = (10, 460), dilate_ksize=(15,15), dilate_iter=1, erode_ksize=(11,11),
@@ -32,7 +32,7 @@ Cathode_Case=dict(name='Cathode_Case', diam=19.3, text_pos = (10, 420), dilate_k
 erode_iter=1, minDist=100, param1=120, param2=15, minR=160, maxR=170),
 
 Reference=dict(name='Reference', diam=2, text_pos = (10, 440), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=13, maxR=16),
+erode_iter=1, minDist=100, param1=120, param2=12, minR=9, maxR=12),
 
 Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
 erode_iter=1, minDist=100, param1=120, param2=10, minR=54, maxR=60),
@@ -70,20 +70,22 @@ def detect_object_center(object_config:dict):
             radius = i[2]
             DETECTED_ELECTRODE.append(radius)
             (h, w) = IMG_COLOR.shape[:2]
-            scale = round(object_config['diam']/(2*radius), 6)
-            offX = round((i[0]-w//2)*scale, 4)
-            offY = round((h//2-i[1])*scale, 4) # Offset in reference to the imgcenter, inversed y axis
+            # scale = round(object_config['diam']/(2*radius), 6)
+            # offX = round((i[0]-w//2)*scale, 4)
+            # offY = round((h//2-i[1])*scale, 4) # Offset in reference to the imgcenter, inversed y axis
+            offX = i[0]-w//2
+            offY = i[0]-h//2
             offSet = (offX, offY) 
             cv.circle(IMG_COLOR, center, 2, (0,0,255), -1)
             cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
             cv.putText(IMG_COLOR, f"Coordinates of {object_config['name']}: {center[0]} , {center[1]}. Radius: {i[2]}", object_config['text_pos'],
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Offset: {offSet}mm", np.add(object_config['text_pos'], (0,20)),
+            cv.putText(IMG_COLOR, f"Offset: {offSet}px", np.add(object_config['text_pos'], (0,20)),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
     
 def main():
     os.chdir(os.path.dirname(__file__))
-    print("Choose from following list:\n[1]--> Anode\n[2]--> Anode_Grab\n[3]--> Cathode\n[4]--> Cathode_Grab\n[5]--> Anode_Spacer\n[6]--> Cathode_Spacer\n[7]--> Cathode_Case\n[8]--> Sucktion_Cap")
+    print("Choose from following list:\n[1]--> Anode\n[2]--> Anode_Grab\n[3]--> Cathode\n[4]--> Cathode_Grab\n[5]--> Anode_Spacer\n[6]--> Cathode_Spacer\n[7]--> Cathode_Case\n[8]--> Sucktion_Cap\n[9]--> Reference")
     object_id = input("-------------------------\nObject to test: ")
     try:
         object_id = int(object_id)
