@@ -31,8 +31,8 @@ erode_iter=1, minDist=100, param1=120, param2=15, minR=135, maxR=140),
 Cathode_Case=dict(name='Cathode_Case', diam=19.3, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
 erode_iter=1, minDist=100, param1=120, param2=15, minR=160, maxR=170),
 
-Reference=dict(name='Reference', diam=2, text_pos = (10, 440), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=12, minR=9, maxR=12),
+Reference=dict(name='Reference', diam=2, text_pos = (10, 440), dilate_ksize=(9,9), dilate_iter=1, erode_ksize=(7,7), 
+erode_iter=1, minDist=100, param1=120, param2=15, minR=8, maxR=10),
 
 Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
 erode_iter=1, minDist=100, param1=120, param2=10, minR=54, maxR=60),
@@ -56,8 +56,8 @@ def detect_object_center(object_config:dict):
                                minRadius=object_config['minR'], maxRadius=object_config['maxR'])
     (h, w) = IMG_COLOR.shape[:2]
     imageCenter = (w//2, h//2)
-    cv.line(img=IMG_COLOR, pt1=(imageCenter[0]-5, imageCenter[1]), pt2=(imageCenter[0]+5, imageCenter[1]), color=(0, 255, 0), thickness=1, lineType=8, shift=0)
-    cv.line(img=IMG_COLOR, pt1=(imageCenter[0], imageCenter[1]-5), pt2=(imageCenter[0], imageCenter[1]+5), color=(0, 255, 0), thickness=1, lineType=8, shift=0)
+    # cv.line(img=IMG_COLOR, pt1=(imageCenter[0]-5, imageCenter[1]), pt2=(imageCenter[0]+5, imageCenter[1]), color=(0, 255, 0), thickness=1, lineType=8, shift=0)
+    # cv.line(img=IMG_COLOR, pt1=(imageCenter[0], imageCenter[1]-5), pt2=(imageCenter[0], imageCenter[1]+5), color=(0, 255, 0), thickness=1, lineType=8, shift=0)
             
     # Mark the center of the inner circle
     if circles is not None:
@@ -78,10 +78,11 @@ def detect_object_center(object_config:dict):
             offSet = (offX, offY) 
             cv.circle(IMG_COLOR, center, 2, (0,0,255), -1)
             cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Coordinates of {object_config['name']}: {center[0]} , {center[1]}. Radius: {i[2]}", object_config['text_pos'],
+            print(f"Coordinates of {object_config['name']}: {center[0]} , {center[1]}. Radius: {i[2]}")
+            cv.putText(IMG_COLOR, f"{center} R:{i[2]}", np.add(center,(10,20)),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            cv.putText(IMG_COLOR, f"Offset: {offSet}px", np.add(object_config['text_pos'], (0,20)),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+            # cv.putText(IMG_COLOR, f"Offset: {offSet}px", np.add(object_config['text_pos'], (0,20)),
+            #            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
     
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -101,6 +102,7 @@ def main():
         path = os.path.join(folder, file)
         global IMG_COLOR
         IMG_COLOR = cv.imread(cv.samples.findFile(path), cv.IMREAD_COLOR)
+        print(file)
         # Check if image is loaded fine
         if IMG_COLOR is None:
             print ('Error opening image!')
@@ -116,14 +118,14 @@ def main():
         elif cmd == ord('d'):
             continue
     cv.destroyAllWindows()
-    plt.plot(group, DETECTED_CASE, label='Reference_radius', marker = 'o')
-    plt.plot(group, DETECTED_ELECTRODE, label=f'{object_id}_radius', marker = 'o')
-    plt.legend()
-    plt.xlabel(f"{object_id} Number")
-    plt.ylabel(f"{object_id} Radius")
-    plt.title(f"Detected Radius from {object_id}")
-    plt.show()
-    return 0
+    # plt.plot(group, DETECTED_CASE, label='Reference_radius', marker = 'o')
+    # plt.plot(group, DETECTED_ELECTRODE, label=f'{object_id}_radius', marker = 'o')
+    # plt.legend()
+    # plt.xlabel(f"{object_id} Number")
+    # plt.ylabel(f"{object_id} Radius")
+    # plt.title(f"Detected Radius from {object_id}")
+    # plt.show()
+    # return 0
 
 if __name__ == "__main__":
     main()
