@@ -34,8 +34,8 @@ erode_iter=1, minDist=100, param1=120, param2=15, minR=160, maxR=170),
 Reference=dict(name='Reference', diam=2, text_pos = (10, 440), dilate_ksize=(9,9), dilate_iter=1, erode_ksize=(7,7), 
 erode_iter=1, minDist=100, param1=120, param2=15, minR=8, maxR=10),
 
-Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=10, minR=54, maxR=60),
+Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=(11,11), dilate_iter=1, erode_ksize=(11,11), 
+erode_iter=1, minDist=500, param1=120, param2=10, minR=53, maxR=56),
 )
 
 def detect_object_center(object_config:dict):
