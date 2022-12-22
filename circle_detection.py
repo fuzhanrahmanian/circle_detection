@@ -19,7 +19,7 @@ Scale_Drop=0.081395,
 Scale_Grab=0.05714286,
 
 Anode_Drop=dict(name='Anode_Drop', diam=15, text_pos = (10, 460), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5),
-erode_iter=1, minDist=100, param1=100, param2=12, minR=88, maxR=90),
+erode_iter=1, minDist=100, param1=100, param2=15, minR=88, maxR=90),
 
 Anode_Grab=dict(name='Anode_Grab', diam=15, text_pos = (10, 460), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5),
 erode_iter=1, minDist=100, param1=100, param2=25, minR=128, maxR=130),
