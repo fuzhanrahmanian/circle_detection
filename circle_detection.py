@@ -7,35 +7,49 @@ import matplotlib.pyplot as plt
 IMG_COLOR = None
 DETECTED_CASE = []
 DETECTED_ELECTRODE = []
-OBJECT_LIST = ('Anode', 'Anode_Grab', 'Cathode', 'Cathode_Grab', 'Anode_Spacer', 'Cathode_Spacer', 'Cathode_Case', 'Suction_Cup', 'Reference')
+OBJECT_LIST = ('Anode_Drop', 'Anode_Grab', 'Cathode_Drop', 'Cathode_Grab', 'Anode_Spacer_Grab', 'Cathode_Spacer_Grab', 'Cathode_Case_Grab', 'Suction_Cup', 'Reference')
 
 CONFIG = dict(
-Anode=dict(name='Anode', diam=15, text_pos = (10, 460), dilate_ksize=(15,15), dilate_iter=1, erode_ksize=(11,11),
-erode_iter=1, minDist=100, param1=100, param2=7, minR=92, maxR=93),
+CAM_PORT_BOTM = 1,
 
-Anode_Grab=dict(name='Anode_Grab', diam=15, text_pos = (10, 420), dilate_ksize=(17,17), dilate_iter=1, erode_ksize=(15,15),
-erode_iter=1, minDist=100, param1=100, param2=25, minR=125, maxR=135),
+CAM_PORT_TOP = 2,
 
-Cathode=dict(name='Cathode', diam=14, text_pos = (10, 460), dilate_ksize=(9,9), dilate_iter=1, erode_ksize=(7,7), 
-erode_iter=1, minDist=100, param1=100, param2=9, minR=85, maxR=88),
+Scale_Drop=0.081395,
 
-Cathode_Grab=dict(name='Cathode_Grab', diam=14, text_pos = (10, 420), dilate_ksize=(17,17), dilate_iter=1, erode_ksize=(17,17), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=115, maxR=125),
+Scale_Grab=0.05714286,
 
-Anode_Spacer=dict(name='Anode_Spacer', diam=15.5, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=135, maxR=140),
+Anode_Drop=dict(name='Anode_Drop', diam=15, text_pos = (10, 460), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5),
+erode_iter=1, minDist=100, param1=100, param2=12, minR=88, maxR=90),
 
-Cathode_Spacer=dict(name='Cathode_Spacer', diam=15.5, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=135, maxR=140),
+Anode_Grab=dict(name='Anode_Grab', diam=15, text_pos = (10, 460), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5),
+erode_iter=1, minDist=100, param1=100, param2=25, minR=128, maxR=130),
 
-Cathode_Case=dict(name='Cathode_Case', diam=19.3, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=160, maxR=170),
+Cathode_Drop=dict(name='Cathode_Drop', diam=14, text_pos = (10, 460), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5), 
+erode_iter=1, minDist=100, param1=100, param2=15, minR=80, maxR=83),
 
-Reference=dict(name='Reference', diam=2, text_pos = (10, 440), dilate_ksize=(9,9), dilate_iter=1, erode_ksize=(7,7), 
-erode_iter=1, minDist=100, param1=120, param2=15, minR=8, maxR=10),
+Cathode_Grab=dict(name='Cathode_Grab', diam=14, text_pos = (10, 460), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5), 
+erode_iter=1, minDist=100, param1=120, param2=15, minR=115, maxR=118),
 
-Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=(11,11), dilate_iter=1, erode_ksize=(11,11), 
-erode_iter=1, minDist=500, param1=120, param2=10, minR=53, maxR=56),
+Separator_Drop=dict(name='Separator', diam=15.5, text_pos = (10, 420), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=20, minR=130, maxR=135),
+
+Anode_Spacer_Grab=dict(name='Anode_Spacer', diam=15.5, text_pos = (10, 420), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5), 
+erode_iter=1, minDist=100, param1=120, param2=15, minR=130, maxR=135),
+
+Cathode_Spacer_Grab=dict(name='Cathode_Spacer', diam=15.5, text_pos = (10, 420), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5), 
+erode_iter=1, minDist=100, param1=120, param2=15, minR=130, maxR=135),
+
+Cathode_Case_Grab=dict(name='Cathode_Case', diam=19.3, text_pos = (10, 420), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5), 
+erode_iter=1, minDist=100, param1=120, param2=15, minR=187, maxR=189),
+
+Reference=dict(name='Reference', diam=2, text_pos = (10, 440), dilate_ksize=(19,19), dilate_iter=1, erode_ksize=(19,19), 
+erode_iter=1, minDist=100, param1=120, param2=20, minR=8, maxR=15),
+
+Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=(5,5), dilate_iter=1, erode_ksize=(5,5), 
+erode_iter=1, minDist=500, param1=120, param2=20, minR=54, maxR=56),
+
+Customize=dict(name='Customize', diam=2, text_pos = (10, 420), dilate_ksize=(15,15), dilate_iter=1, erode_ksize=(15,15), 
+erode_iter=1, minDist=100, param1=120, param2=5, minR=10, maxR=12),
 )
 
 def detect_object_center(object_config:dict):
@@ -86,7 +100,9 @@ def detect_object_center(object_config:dict):
     
 def main():
     os.chdir(os.path.dirname(__file__))
-    print("Choose from following list:\n[1]--> Anode\n[2]--> Anode_Grab\n[3]--> Cathode\n[4]--> Cathode_Grab\n[5]--> Anode_Spacer\n[6]--> Cathode_Spacer\n[7]--> Cathode_Case\n[8]--> Sucktion_Cap\n[9]--> Reference")
+    print("Choose from following list: ")
+    for nr, item in enumerate(OBJECT_LIST):
+        print(f"[{nr+1}]--> {item}")
     object_id = input("-------------------------\nObject to test: ")
     try:
         object_id = int(object_id)
