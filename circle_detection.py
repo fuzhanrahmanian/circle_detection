@@ -1,12 +1,10 @@
 import sys, os
-import re
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+import threading
 
 IMG_COLOR = None
-DETECTED_CASE = []
-DETECTED_ELECTRODE = []
 OBJECT_LIST = ('Anode_Drop', 'Anode_Grab', 'Cathode_Drop', 'Cathode_Grab', 'Anode_Spacer_Grab', 'Cathode_Spacer_Grab', 'Cathode_Case_Grab', 'Suction_Cup', 'Reference')
 
 CONFIG = dict(
@@ -68,35 +66,43 @@ def detect_object_center(object_config:dict):
     circles = cv.HoughCircles(img_gray, cv.HOUGH_GRADIENT, 1, object_config['minDist'],
                                param1=object_config['param1'], param2=object_config['param2'],
                                minRadius=object_config['minR'], maxRadius=object_config['maxR'])
-    (h, w) = IMG_COLOR.shape[:2]
-    imageCenter = (w//2, h//2)
     # cv.line(img=IMG_COLOR, pt1=(imageCenter[0]-5, imageCenter[1]), pt2=(imageCenter[0]+5, imageCenter[1]), color=(0, 255, 0), thickness=1, lineType=8, shift=0)
     # cv.line(img=IMG_COLOR, pt1=(imageCenter[0], imageCenter[1]-5), pt2=(imageCenter[0], imageCenter[1]+5), color=(0, 255, 0), thickness=1, lineType=8, shift=0)
             
     # Mark the center of the inner circle
+    (w, h) = IMG_COLOR.shape[:2]
+    img_center = (w//2, h//2)
+    found_circles = list()
     if circles is not None:
         circles = np.uint16(np.around(circles))
-        for i in circles[0, :]:
-            center = (i[0], i[1])
-            # circle center
-            cv.circle(IMG_COLOR, center, 1, (0, 100, 100), 1)
-            # circle outline
-            radius = i[2]
-            DETECTED_ELECTRODE.append(radius)
-            (h, w) = IMG_COLOR.shape[:2]
-            # scale = round(object_config['diam']/(2*radius), 6)
-            # offX = round((i[0]-w//2)*scale, 4)
-            # offY = round((h//2-i[1])*scale, 4) # Offset in reference to the imgcenter, inversed y axis
-            offX = i[0]-w//2
-            offY = i[0]-h//2
-            offSet = (offX, offY) 
-            cv.circle(IMG_COLOR, center, 2, (0,0,255), -1)
-            cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
-            print(f"Coordinates of {object_config['name']}: {center[0]} , {center[1]}. Radius: {i[2]}")
-            cv.putText(IMG_COLOR, f"{center} R:{i[2]}", np.add(center,(10,20)),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            # cv.putText(IMG_COLOR, f"Offset: {offSet}px", np.add(object_config['text_pos'], (0,20)),
-            #            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        for c in circles[0, :]:
+            center = (c[0], c[1])
+            if np.allclose(img_center, center, atol=100):
+                found_circles.append([[c[0], c[1]], c[2]])
+                # circle center
+                # circle outline
+                radius = c[2]
+                cv.circle(IMG_COLOR, center, 2, (0,0,255), -1)
+                cv.circle(IMG_COLOR, center, radius, (255, 0, 255), 1)
+                # print(f"Coordinates of {object_config['name']}: {center[0]} , {center[1]}. Radius: {c[2]}")
+                cv.putText(IMG_COLOR, f"{center} R:{c[2]}", np.add(center,(10,20)),
+                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        sorted_circles = sorted(found_circles, key=lambda x:x[1])
+        return sorted_circles[-1]
+    else:
+        return 0
+
+def plot_xy(foundX, foundY):
+    plt.scatter(x=foundX, y=foundY, c='#1f77b4', marker='o')
+    plt.xlabel('X-Pxl')
+    plt.ylabel('Y-Pxl')
+    plt.show()
+
+def show_all(img):
+    cv.imshow("Summery", img)
+    cmd = cv.waitKey(0)
+    if cmd == ord('q'):
+        cv.destroyAllWindows()
     
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -110,38 +116,44 @@ def main():
         exit()
     else:
         object_id = OBJECT_LIST[int(object_id)-1]
+    if object_id in (OBJECT_LIST[0], OBJECT_LIST[2], OBJECT_LIST[8]):
+        ref_img_path = os.path.join(r"trial_anode", "Reference", "[Camera2_Calib]_2022_12_14_11h_00m_46s.jpg")
+    else:
+        ref_img_path = os.path.join(r"trial_anode", "Suction_Cup", "[BotCam]_Center_(-29.457,201.994,92.010,180.000,0.000,90.000).jpg")
+    ref_img = cv.imread(cv.samples.findFile(ref_img_path), cv.IMREAD_COLOR)
+    found_circle_x = []
+    found_circle_y = []
     folder = os.path.join(r"trial_anode", object_id)
-    group = []
+    slide_show = True
     for file in os.listdir(folder):
-        group.append(re.findall(r'\d+', file)[0])
         # join the path and filename
         path = os.path.join(folder, file)
         global IMG_COLOR
         IMG_COLOR = cv.imread(cv.samples.findFile(path), cv.IMREAD_COLOR)
-        print(file)
         # Check if image is loaded fine
         if IMG_COLOR is None:
             print ('Error opening image!')
             sys.exit()
-        detect_object_center(CONFIG[object_id])
-        if object_id in ('Anode', 'Cathode'):
-            detect_object_center(CONFIG['Reference'])
-
-        cv.imshow("detected circles", IMG_COLOR)
-        cmd = cv.waitKey(0)
-        if cmd == ord('q'):
-            break
-        elif cmd == ord('d'):
-            continue
+        c = detect_object_center(CONFIG[object_id])
+        if c:
+            found_circle_x.append(c[0][0])
+            found_circle_y.append(c[0][1])
+            cv.circle(ref_img, c[0], 1, (0, 0, 255), -1)
+        # if object_id in (OBJECT_LIST[0], OBJECT_LIST[1]):
+        #     detect_object_center(CONFIG['Reference'])
+        if slide_show:
+            cv.imshow("detected circles", IMG_COLOR)
+            cmd = cv.waitKey(0)
+            if cmd == ord('q'):
+                break
+            elif cmd == ord('s'):
+                slide_show = False
+            elif cmd == ord('d'):
+                continue
     cv.destroyAllWindows()
-    # plt.plot(group, DETECTED_CASE, label='Reference_radius', marker = 'o')
-    # plt.plot(group, DETECTED_ELECTRODE, label=f'{object_id}_radius', marker = 'o')
-    # plt.legend()
-    # plt.xlabel(f"{object_id} Number")
-    # plt.ylabel(f"{object_id} Radius")
-    # plt.title(f"Detected Radius from {object_id}")
-    # plt.show()
-    # return 0
+    threading.Thread(target=show_all, args=(ref_img,), daemon=True).start()
+    plot_xy(found_circle_x, found_circle_y)
+    
 
 if __name__ == "__main__":
     main()
