@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import threading
 
 IMG_COLOR = None
-OBJECT_LIST = ('Anode_Drop', 'Anode_Grab', 'Cathode_Drop', 'Cathode_Grab', 'Anode_Spacer_Grab', 'Cathode_Spacer_Grab', 'Cathode_Case_Grab', 'Suction_Cup', 'Reference')
+OBJECT_LIST = ('Anode_Drop', 'Anode_Grab', 'Cathode_Drop', 'Cathode_Grab', 'Anode_Spacer_Grab', 'Cathode_Spacer_Grab', 'Cathode_Case_Grab', 'Suction_Cup', 'Reference', 'Customize')
 
 CONFIG = dict(
 CAM_PORT_BOTM = 1,
@@ -47,7 +47,7 @@ Suction_Cup=dict(name='Suction_Cup', diam=4, text_pos = (10, 420), dilate_ksize=
 erode_iter=1, minDist=500, param1=120, param2=20, minR=54, maxR=56),
 
 Customize=dict(name='Customize', diam=2, text_pos = (10, 420), dilate_ksize=(15,15), dilate_iter=1, erode_ksize=(15,15), 
-erode_iter=1, minDist=100, param1=120, param2=5, minR=10, maxR=12),
+erode_iter=1, minDist=200, param1=120, param2=10, minR=10, maxR=12),
 )
 
 def detect_object_center(object_config:dict):
@@ -88,7 +88,7 @@ def detect_object_center(object_config:dict):
                 cv.putText(IMG_COLOR, f"{center} R:{c[2]}", np.add(center,(10,20)),
                         cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
         sorted_circles = sorted(found_circles, key=lambda x:x[1])
-        return sorted_circles[-1]
+        return sorted_circles[-1] if len(sorted_circles) > 0 else 0
     else:
         return 0
 
@@ -137,18 +137,19 @@ def main():
         c = detect_object_center(CONFIG[object_id])
         if c:
             found_circle_x.append(c[0][0])
-            found_circle_y.append(c[0][1])
+            found_circle_y.append(-c[0][1])
             cv.circle(ref_img, c[0], 1, (0, 0, 255), -1)
         # if object_id in (OBJECT_LIST[0], OBJECT_LIST[1]):
         #     detect_object_center(CONFIG['Reference'])
         if slide_show:
-            cv.imshow("detected circles", IMG_COLOR)
+            cv.imshow(file, IMG_COLOR)
             cmd = cv.waitKey(0)
             if cmd == ord('q'):
                 break
             elif cmd == ord('s'):
                 slide_show = False
             elif cmd == ord('d'):
+                # cv.destroyWindow(file)
                 continue
     cv.destroyAllWindows()
     threading.Thread(target=show_all, args=(ref_img,), daemon=True).start()
